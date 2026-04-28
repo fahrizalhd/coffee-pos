@@ -1,1 +1,1 @@
-# coffee-pos
+# coffee-pos-dev
