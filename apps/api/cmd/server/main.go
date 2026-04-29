@@ -5,6 +5,12 @@ import (
 
 	"coffee-pos-api/internal/config"
 	"coffee-pos-api/internal/database"
+	"coffee-pos-api/internal/database/seeders"
+	"coffee-pos-api/internal/middleware"
+	"coffee-pos-api/internal/modules/category"
+	"coffee-pos-api/internal/modules/order"
+	"coffee-pos-api/internal/modules/product"
+	"coffee-pos-api/internal/modules/user"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,7 +20,9 @@ func main() {
 
 	db := database.Connect(cfg)
 
-	_ = db
+	if err := seeders.SeedAdmin(db); err != nil {
+		log.Fatal("Failed to seed admin")
+	}
 
 	r := gin.Default()
 
@@ -24,7 +32,20 @@ func main() {
 		})
 	})
 
-	log.Println("server running on port", cfg.AppPort)
+	// PUBLIC ROUTES
+	user.RegisterPublicRoutes(r)
+
+	// PROTECTED ROUTES
+	auth := r.Group("/")
+
+	auth.Use(middleware.AuthMiddleware(cfg))
+
+	user.RegisterProtectedRoutes(auth)
+	category.RegisterRoutes(auth)
+	product.RegisterRoutes(auth)
+	order.RegisterRoutes(auth)
+
+	log.Println("Server running on port", cfg.AppPort)
 
 	r.Run(":" + cfg.AppPort)
 }

@@ -12,4 +12,4 @@ RUN go install github.com/air-verse/air@latest
 
 EXPOSE 8080
 
-CMD ["air"]
+CMD ["go", "run", "./cmd/server"]

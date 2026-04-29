@@ -10,6 +10,8 @@ import (
 	"gorm.io/gorm"
 )
 
+var DB *gorm.DB
+
 func Connect(cfg *config.Config) *gorm.DB {
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
@@ -24,10 +26,12 @@ func Connect(cfg *config.Config) *gorm.DB {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-		log.Fatal("failed to connect database")
+		log.Fatal("Failed to connect database")
 	}
 
-	log.Println("database connected")
+	DB = db
+
+	log.Println("Database connected")
 
 	return db
 }
